@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG 澳門實境探索地圖 v1.2.12</title>
+    <title>RPG 澳門實境探索地圖 v1.2.13</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
@@ -72,7 +72,7 @@
     		font-weight: 500;
     		color: #555555;            
     		font-style: italic;
-    		line-height: 1.2;
+    		line-height: 1.3;
     		display: -webkit-box;
     		-webkit-box-orient: vertical;
     		-webkit-line-clamp: 3; 
@@ -84,7 +84,7 @@
         .action-buttons-container {
             position: absolute;
             right: 23px;
-            top: 145px;                
+            top: 165px;                
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -214,7 +214,7 @@
         .btn-power-high { background: #e04379; }
         .btn-power-save { background: #009688; }
         .btn-danger { background: #ff4d4d; }
-        .btn-footprint { background: #FFC107; color: #111 !important; } /* 🐾 足跡按鈕樣式 */
+        .btn-footprint { background: #FFC107; color: #111111 !important; }
 
         /* 🌟 底部常駐純資訊面板 */
         #bottom-info-bar {
@@ -278,22 +278,22 @@
             100% { transform: translateX(-50%) scale(1); }
         }
 
-        /* 🐾 已走過道路的彈出式滿版頁面（Modal） */
+        /* 🐾 已走過道路的彈出式滿版頁面 */
         #footprint-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 15, 15, 0.95);
+            background: rgba(15, 15, 15, 0.85);
             z-index: 2000;
-            display: none; /* 預設隱藏 */
+            display: none; 
             flex-direction: column;
             color: #fff;
             font-family: system-ui, -apple-system, sans-serif;
         }
         .modal-header {
-            padding: 20px;
+            padding: 14px 20px;
             background: #222;
             border-bottom: 2px solid #333;
             display: flex;
@@ -302,38 +302,82 @@
         }
         .modal-header h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 18px;
             color: #FFC107;
         }
         .close-modal-btn {
-            background: #ff4d4d;
+            background: #666;
             border: none;
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 9px 9px;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
         }
+        
+        /* 🔍 搜尋與工具欄 */
+        .modal-toolbar {
+            padding: 12px 20px;
+            background: #111111;
+            border-bottom: 2px solid #2d2d2d;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .search-input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            background: #222;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #FFC107;
+        }
+        .sort-toggle-btn {
+            background: #265dad;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            user-select: none;
+        }
+
         .modal-body {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
         }
-        /* 道路清單樣式 */
         .street-list-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
+        
+        /* 🗺️ 路名卡片（加入右側刪除功能） */
         .street-item-card {
             background: #2a2a2a;
             border-left: 5px solid #FFC107;
             padding: 12px 16px;
-            border-radius: 0 8px 8px 0;
+            border-radius: 0 10px 10px 0;
+            display: flex;
+            justify-content: space-between; /* 讓內容與刪除按鈕分開 */
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .card-info-box {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            flex: 1;
+            padding-right: 15px;
         }
         .card-zh {
             font-size: 18px;
@@ -354,6 +398,28 @@
             border-radius: 4px;
             margin-top: 2px;
         }
+        /* ❌ 刪除按鈕樣式 */
+        .delete-street-btn {
+            background: transparent;
+            border: 2px solid #ff4d4d;
+            color: #ff4d4d;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .delete-street-btn:hover {
+            background: #ff4d4d;
+            color: white;
+        }
+
         .empty-tip {
             text-align: center;
             color: #888;
@@ -372,8 +438,8 @@
     <button id="menu-toggle-btn" onclick="toggleMenuPanel()">⚙️</button>
 
     <div id="location-bubble">
-        <span class="street-zh" id="bubble-zh">📍 正在讀取資料與GPS訊號...</span>
-        <span class="street-pt" id="bubble-pt">A carregar dados e sinal de GPS...</span>
+        <span class="street-zh" id="bubble-zh">📍 正在尋找GPS訊號 ...</span>
+        <span class="street-pt" id="bubble-pt">         Procura sinal de GPS ...</span>
     </div>
 
     <div class="action-buttons-container">
@@ -401,9 +467,9 @@
 
     <div id="status-panel">
         <div class="btn-group">
-            <button class="panel-btn btn-footprint" onclick="openFootprintPage()">🐾 查看足跡圖鑑</button>
             <button id="btn-toggle-mode" class="panel-btn btn-mode-gps" onclick="toggleControlMode()">切換模式：🕹️D-Pad</button>
             <button id="btn-toggle-power" class="panel-btn btn-power-high" onclick="togglePowerMode()">運行模式：⚡高效能模式</button>
+            <button class="panel-btn btn-footprint" onclick="openFootprintPage()">👟 查看已探索道路</button>
             <button class="panel-btn btn-io-download" onclick="downloadSaveFile()">💾 下載目前進度</button>
             <button class="panel-btn btn-io-upload" onclick="triggerUploadClick()">📂 上載既有進度</button>
             <button class="panel-btn btn-danger" onclick="resetGame()">🛑 清除全部紀錄</button>
@@ -412,9 +478,15 @@
 
     <div id="footprint-modal">
         <div class="modal-header">
-            <h2>🐾 已解鎖的澳門道路圖鑑</h2>
-            <button class="close-modal-btn" onclick="closeFootprintPage()">關閉頁面</button>
+            <h2 id="modal-title-count">👟 已探索的澳門道路 (0)</h2>
+            <button class="close-modal-btn" onclick="closeFootprintPage()">❌</button>
         </div>
+        
+        <div class="modal-toolbar">
+            <input type="text" id="footprint-search" class="search-input" placeholder="🔍 輸入中文或葡文路名搜尋..." oninput="renderFootprintList()">
+            <button id="btn-sort-toggle" class="sort-toggle-btn" onclick="toggleStrokeSortOrder()">筆劃排序：少→多</button>
+        </div>
+
         <div class="modal-body">
             <div id="street-list-target" class="street-list-container">
                 </div>
@@ -422,15 +494,15 @@
     </div>
 
     <div id="bottom-info-bar">
-        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.2.12) 📸</div>
-        <div class="info-coords" id="gps-status">初始化中...</div>
+        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.2.13) 📸</div>
+        <div class="info-coords" id="gps-status">定位中...</div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-geometryutil@0.10.3/src/leaflet.geometryutil.js"></script>
     
     <script>
-        // 🌟 全域變數定義
+        // 全域變數定義
         const macauBounds = L.latLngBounds(
             L.latLng(22.0900, 113.5100), 
             L.latLng(22.2300, 113.6100)  
@@ -440,7 +512,7 @@
         let currentLng = 113.54086;
         let hasInitialPosition = false; 
         let unlockedPaths = []; 
-        let unlockedStreets = []; // 🌟 新增：存放已走過的路名物件陣列 [{zh: '...', pt: '...'}, ...]
+        let unlockedStreets = []; 
         let playerMarker = null; 
         
         let isDpadMode = false; 
@@ -454,6 +526,9 @@
         let map;
         let canvas, ctx, tempCanvas, tempCtx;
 
+        // 🌟 新增：排序狀態控制（true 代表小到大，false 代表大到小）
+        let isSortAscending = true; 
+
         // 非同步下載 JSON 筆劃資料的引擎
         async function loadStrokeData() {
             try {
@@ -461,17 +536,17 @@
                 if (!response.ok) throw new Error("找不到 strokeData.json 檔案");
                 
                 strokeTable = await response.json();
-                console.log("🎉 筆劃表載入成功，共讀取了 " + Object.keys(strokeTable).length + " 筆資料。");
+                console.log("🎉 筆劃表載入成功，共讀取了 " + Object.keys(strokeTable).length + " 筆資料");
                 
                 initGame();
             } catch (error) {
                 console.error("❌ 筆劃表載入失敗:", error);
                 document.getElementById('bubble-zh').innerText = "❌ 錯誤：無法加載筆劃表檔案！";
+                document.getElementById('bubble-pt').innerText = "         Não foi possível carregar os ficheiros secundários!";
                 initGame(); 
             }
         }
 
-        // 將原本直接執行的初始化邏輯封裝至此函式內
         function initGame() {
             map = L.map('map', {
                 zoomControl: false,          
@@ -503,7 +578,6 @@
             }
         }
 
-        // 控制選單摺疊/展開切換邏輯
         function toggleMenuPanel() {
             if (isReadOnlyMode) return;
             const panel = document.getElementById('status-panel');
@@ -523,7 +597,6 @@
             }
         }
 
-        // 雙層迷霧混合演算
         function drawFog() {
             if(!map) return; 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -616,8 +689,6 @@
                 
                 let streetZHs = [];
                 let streetPTs = [];
-
-                // 暫存本次查詢抓到的中葡路名對照，用來寫入圖鑑
                 let newStreetPairs = [];
 
                 if (data && data.elements) {
@@ -629,7 +700,6 @@
                             if (nameZH && !streetZHs.includes(nameZH) && isChinese(nameZH)) streetZHs.push(nameZH);
                             if (namePT && !streetPTs.includes(namePT) && !isChinese(namePT)) streetPTs.push(namePT);
                             
-                            // 🌟 收集有效的對照組
                             if(nameZH && namePT && isChinese(nameZH) && !isChinese(namePT)) {
                                 if(!newStreetPairs.some(p => p.zh === nameZH)) {
                                     newStreetPairs.push({ zh: nameZH, pt: namePT });
@@ -643,7 +713,6 @@
                     document.getElementById('bubble-zh').innerText = isReadOnlyMode ? `👀 好友目前在 ${streetZHs.join(' 與 ')}` : `📍 你目前在 ${streetZHs.join(' 與 ')}`;
                     document.getElementById('bubble-pt').innerText = streetPTs.length > 0 ? streetPTs.join(' / ') : "Macau";
                     
-                    // 🌟 異步更新足跡圖鑑資料庫
                     if(!isReadOnlyMode && newStreetPairs.length > 0) {
                         saveNewStreetsToInventory(newStreetPairs);
                     }
@@ -656,85 +725,141 @@
             }
         }
 
-        // 🌟 新增：將新走過的路名寫入圖鑑陣列並儲存
+        // 🌟 已升級：在將路名推入陣列前，雙重檢查中/葡文是否已經存在（防重複）
         function saveNewStreetsToInventory(pairsArray) {
             let updated = false;
             pairsArray.forEach(pair => {
-                // 如果圖鑑裡還沒有這條中文路名，就加進去
-                if(!unlockedStreets.some(s => s.zh === pair.zh)) {
+                // 檢查是否完全包含該中文或葡文
+                const isDuplicate = unlockedStreets.some(s => s.zh === pair.zh || s.pt.toLowerCase() === pair.pt.toLowerCase());
+                
+                if(!isDuplicate) {
                     unlockedStreets.push(pair);
                     updated = true;
                 }
             });
             if(updated) {
                 localStorage.setItem('rpg_map_streets_inventory', JSON.stringify(unlockedStreets));
-                console.log("🐾 圖鑑更新！目前累計解鎖道路：", unlockedStreets.length);
+                console.log("👟 圖鑑更新！排除重複後累計：", unlockedStreets.length);
             }
         }
 
-        // 🌟 新增：獲取字串的中文筆劃數（以首字為主，若無資料則回傳 999 方便排最後）
         function getStrokeCount(streetName) {
             if (!streetName || streetName.length === 0) return 999;
             const firstChar = streetName.charAt(0);
-            
-            // 優先查 strokeData.json 載入的對照表
             if (strokeTable && strokeTable[firstChar] !== undefined) {
                 return strokeTable[firstChar];
             }
-            
-            // 如果剛好是常用的地名首字沒在表裡，可做簡單的備用
             if (strokeTable && strokeTable[streetName] !== undefined) {
                 return strokeTable[streetName];
             }
-            
-            return 999; // 找不到筆劃的排到最後面
+            return 999; 
         }
 
-        // 🌟 新增：開啟並渲染足跡頁面
+        // 🌟 已升級：開啟足跡頁面（初始化搜尋框與計數）
         function openFootprintPage() {
-            toggleMenuPanel(); // 關閉側邊小選單
-            const modal = document.getElementById('footprint-modal');
+            toggleMenuPanel(); 
+            document.getElementById('footprint-search').value = ""; // 打開時清空搜尋字串
+            document.getElementById('footprint-modal').style.display = "flex"; 
+            renderFootprintList(); // 執行渲染
+        }
+
+        // 🌟 新增：切換升冪/降冪排序
+        function toggleStrokeSortOrder() {
+            isSortAscending = !isSortAscending;
+            const btn = document.getElementById('btn-sort-toggle');
+            if (isSortAscending) {
+                btn.innerText = "筆劃排序：少→多";
+            } else {
+                btn.innerText = "筆劃排序：多→少";
+            }
+            renderFootprintList(); // 重新渲染列表
+        }
+
+        // 🌟 新增：手動刪除特定路名記錄的功能
+        function deleteStreetRecord(zhName, ptName) {
+            if (confirm(`❗ 確定要刪除「${zhName}」這條道路的解鎖記錄嗎？`)) {
+                // 從全域記憶體中過濾掉
+                unlockedStreets = unlockedStreets.filter(s => !(s.zh === zhName && s.pt === ptName));
+                // 同步儲存至本地瀏覽器
+                localStorage.setItem('rpg_map_streets_inventory', JSON.stringify(unlockedStreets));
+                // 重新刷新當前渲染的清單
+                renderFootprintList();
+            }
+        }
+
+        // 🌟 新增與重構：核心渲染引擎（整合「搜尋」、「排序」與「刪除按鈕」）
+        function renderFootprintList() {
             const listTarget = document.getElementById('street-list-target');
+            const searchKeyword = document.getElementById('footprint-search').value.trim().toLowerCase();
             
-            listTarget.innerHTML = ""; // 清空舊資料
-            modal.style.display = "flex"; // 顯示滿版層
+            listTarget.innerHTML = ""; // 清空
+
+            // 更新標題數量顯示
+            document.getElementById('modal-title-count').innerText = `👟 已探索的澳門道路 (${unlockedStreets.length})`;
 
             if (unlockedStreets.length === 0) {
-                listTarget.innerHTML = `<div class="empty-tip">目前尚未解鎖任何街道，快連上GPS四處走走吧！</div>`;
+                listTarget.innerHTML = `<div class="empty-tip">目前尚未探索任何道路，快連上GPS四處走走吧！</div>`;
                 return;
             }
 
-            // 核心邏輯：複製一份並依照筆劃進行由小到大的排序
-            let sortedStreets = [...unlockedStreets].sort((a, b) => {
-                const strokeA = getStrokeCount(a.zh);
-                const strokeB = getStrokeCount(b.zh);
-                return strokeA - strokeB; // 由小到大
+            // 1. 執行「搜尋過濾」
+            let filteredStreets = unlockedStreets.filter(street => {
+                const matchZh = street.zh.toLowerCase().includes(searchKeyword);
+                const matchPt = street.pt.toLowerCase().includes(searchKeyword);
+                return matchZh || matchPt; // 中文或葡文其中一個符合即可
             });
 
-            // 渲染卡片
-            sortedStreets.forEach(street => {
+            if (filteredStreets.length === 0) {
+                listTarget.innerHTML = `<div class="empty-tip">找不到符合「${searchKeyword}」的道路結果。</div>`;
+                return;
+            }
+
+            // 2. 執行「筆劃排序」
+            filteredStreets.sort((a, b) => {
+                const strokeA = getStrokeCount(a.zh);
+                const strokeB = getStrokeCount(b.zh);
+                
+                if (isSortAscending) {
+                    return strokeA - strokeB; // 小到大
+                } else {
+                    return strokeB - strokeA; // 大到小
+                }
+            });
+
+            // 3. 生成 DOM 結構並綁定刪除事件
+            filteredStreets.forEach(street => {
                 const strokeNum = getStrokeCount(street.zh);
                 const strokeText = strokeNum === 999 ? "未分類" : `${strokeNum} 劃`;
 
                 const card = document.createElement('div');
                 card.className = "street-item-card";
+                
+                // 建立左半邊資訊欄與右半邊刪除鈕
                 card.innerHTML = `
-                    <div class="card-zh">${street.zh}</div>
-                    <div class="card-pt">${street.pt}</div>
-                    <div class="card-stroke">首字筆劃：${strokeText}</div>
+                    <div class="card-info-box">
+                        <div class="card-zh">${street.zh}</div>
+                        <div class="card-pt">${street.pt}</div>
+                        <div class="card-stroke">首字筆劃：${strokeText}</div>
+                    </div>
+                    <button class="delete-street-btn" title="刪除此記錄">❌</button>
                 `;
+
+                // 綁定動態刪除按鈕的點擊監聽器
+                const delBtn = card.querySelector('.delete-street-btn');
+                delBtn.addEventListener('click', () => {
+                    deleteStreetRecord(street.zh, street.pt);
+                });
+
                 listTarget.appendChild(card);
             });
         }
 
-        // 🌟 新增：關閉足跡頁面
         function closeFootprintPage() {
             document.getElementById('footprint-modal').style.display = "none";
         }
 
         function isChinese(str) { return /[\u4e00-\u9fa5]/.test(str); }
 
-        // 打包生成唯讀分享連結
         function shareAsReadOnlyUrl() {
             if (unlockedPaths.length === 0) {
                 alert("目前地圖上一片空白，快去走走再分享吧！");
@@ -753,7 +878,6 @@
             });
         }
 
-        // 網頁啟動時的網址參數解碼引擎
         function checkUrlParametersEngine() {
             const urlParams = new URLSearchParams(window.location.search);
             const encryptedData = urlParams.get('data');
@@ -776,7 +900,6 @@
                         currentLng = lastPoint[1];
                     }
 
-                    // 唯讀模式
                     document.getElementById('menu-toggle-btn').style.display = "none";
                     document.getElementById('status-panel').style.display = "none";
                     document.getElementById('bottom-info-bar').style.display = "none";
@@ -813,11 +936,11 @@
             }
             const saveData = {
                 gameIdentity: "Macau-Fog-Map-RPG",
-                version: "1.2.12",
+                version: "1.2.13",
                 downloadTimestamp: new Date().toISOString(),
                 lastLocation: [currentLat, currentLng],
                 exploredPaths: unlockedPaths,
-                exploredStreets: unlockedStreets // 將路名圖鑑一同導出
+                exploredStreets: unlockedStreets 
             };
             const jsonText = JSON.stringify(saveData, null, 2);
             const blob = new Blob([jsonText], { type: "application/json" });
@@ -851,7 +974,7 @@
                     }
 
                     unlockedPaths = parsedData.exploredPaths;
-                    unlockedStreets = parsedData.exploredStreets || []; // 恢復路名圖鑑
+                    unlockedStreets = parsedData.exploredStreets || []; 
 
                     if (parsedData.lastLocation) {
                         currentLat = parsedData.lastLocation[0];
@@ -893,7 +1016,6 @@
                 }
             }
             
-            // 讀取既有路名圖鑑
             const savedStreets = localStorage.getItem('rpg_map_streets_inventory');
             if(savedStreets) {
                 unlockedStreets = JSON.parse(savedStreets);
