@@ -7,3 +7,6 @@ Add highlight road/Improve name order/Add admin key
 
 v1.3.1
 Add discover date
+
+v1.3.4
+Add name order types/Add filter
