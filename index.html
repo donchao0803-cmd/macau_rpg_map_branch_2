@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG 澳門實境探索地圖 v1.2.13</title>
+    <title>RPG 澳門實境探索地圖 v1.3.0</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
@@ -72,7 +72,7 @@
     		font-weight: 500;
     		color: #555555;            
     		font-style: italic;
-    		line-height: 1.3;
+    		line-height: 1.2;
     		display: -webkit-box;
     		-webkit-box-orient: vertical;
     		-webkit-line-clamp: 3; 
@@ -309,7 +309,7 @@
             background: #666;
             border: none;
             color: white;
-            padding: 9px 9px;
+            padding: 10px 10px;
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
@@ -341,7 +341,7 @@
             background: #265dad;
             color: white;
             border: none;
-            padding: 10px 14px;
+            padding: 10px 10px;
             border-radius: 10px;
             font-weight: bold;
             font-size: 13px;
@@ -361,23 +361,29 @@
             gap: 12px;
         }
         
-        /* 🗺️ 路名卡片（加入右側刪除功能） */
+        /* 🗺️ 路名卡片 */
         .street-item-card {
             background: #2a2a2a;
             border-left: 5px solid #FFC107;
             padding: 12px 16px;
             border-radius: 0 10px 10px 0;
             display: flex;
-            justify-content: space-between; /* 讓內容與刪除按鈕分開 */
+            justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s;
         }
-        .card-info-box {
+        /* 讓卡片左側內容區塊可點擊 */
+        .card-clickable-area {
             display: flex;
             flex-direction: column;
             gap: 4px;
             flex: 1;
             padding-right: 15px;
+            cursor: pointer;
+        }
+        .street-item-card:hover {
+            background: #333333;
         }
         .card-zh {
             font-size: 18px;
@@ -414,6 +420,7 @@
             font-size: 14px;
             transition: all 0.2s ease;
             user-select: none;
+            z-index: 10; /* 確保不會跟卡片點擊範圍重疊 */
         }
         .delete-street-btn:hover {
             background: #ff4d4d;
@@ -425,6 +432,13 @@
             color: #888;
             margin-top: 40px;
             font-style: italic;
+        }
+
+        /* 🟡 高亮光圈動畫樣式 */
+        @keyframes pulseHighlight {
+            0 { transform: scale(0.5); opacity: 0.9; }
+            50 { transform: scale(1.2); opacity: 0.4; }
+            100 { transform: scale(0.5); opacity: 0.9; }
         }
     </style>
 </head>
@@ -439,7 +453,7 @@
 
     <div id="location-bubble">
         <span class="street-zh" id="bubble-zh">📍 正在尋找GPS訊號 ...</span>
-        <span class="street-pt" id="bubble-pt">         Procura sinal de GPS ...</span>
+        <span class="street-pt" id="bubble-pt">Procura sinal de GPS ...</span>
     </div>
 
     <div class="action-buttons-container">
@@ -478,13 +492,13 @@
 
     <div id="footprint-modal">
         <div class="modal-header">
-            <h2 id="modal-title-count">👟 已探索的澳門道路 (0)</h2>
+            <h2 id="modal-title-count"> 👟 已探索的澳門道路 (0)</h2>
             <button class="close-modal-btn" onclick="closeFootprintPage()">❌</button>
         </div>
         
         <div class="modal-toolbar">
             <input type="text" id="footprint-search" class="search-input" placeholder="🔍 輸入中文或葡文路名搜尋..." oninput="renderFootprintList()">
-            <button id="btn-sort-toggle" class="sort-toggle-btn" onclick="toggleStrokeSortOrder()">筆劃排序：少→多</button>
+            <button id="btn-sort-toggle" class="sort-toggle-btn" onclick="toggleStrokeSortOrder()">⏫</button>
         </div>
 
         <div class="modal-body">
@@ -494,7 +508,7 @@
     </div>
 
     <div id="bottom-info-bar">
-        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.2.13) 📸</div>
+        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.3.0) 📸</div>
         <div class="info-coords" id="gps-status">定位中...</div>
     </div>
 
@@ -514,6 +528,7 @@
         let unlockedPaths = []; 
         let unlockedStreets = []; 
         let playerMarker = null; 
+        let highlightLayer = null; // 用於儲存地圖聯動的高亮波紋圖層
         
         let isDpadMode = false; 
         let isPowerSaveMode = false; 
@@ -526,7 +541,7 @@
         let map;
         let canvas, ctx, tempCanvas, tempCtx;
 
-        // 🌟 新增：排序狀態控制（true 代表小到大，false 代表大到小）
+        // 排序狀態控制（true 代表小到大，false 代表大到小）
         let isSortAscending = true; 
 
         // 非同步下載 JSON 筆劃資料的引擎
@@ -536,13 +551,13 @@
                 if (!response.ok) throw new Error("找不到 strokeData.json 檔案");
                 
                 strokeTable = await response.json();
-                console.log("🎉 筆劃表載入成功，共讀取了 " + Object.keys(strokeTable).length + " 筆資料");
+                console.log("🎉 筆劃表載入成功，共讀取了 " + Object.keys(strokeTable).length + " 筆資料。");
                 
                 initGame();
             } catch (error) {
                 console.error("❌ 筆劃表載入失敗:", error);
                 document.getElementById('bubble-zh').innerText = "❌ 錯誤：無法加載筆劃表檔案！";
-                document.getElementById('bubble-pt').innerText = "         Não foi possível carregar os ficheiros secundários!";
+                document.getElementById('bubble-pt').innerText = "Não foi possível carregar os ficheiros secundários!";
                 initGame(); 
             }
         }
@@ -702,7 +717,8 @@
                             
                             if(nameZH && namePT && isChinese(nameZH) && !isChinese(namePT)) {
                                 if(!newStreetPairs.some(p => p.zh === nameZH)) {
-                                    newStreetPairs.push({ zh: nameZH, pt: namePT });
+                                    // 🌟 升級：新發現路名時，一併存入當前經緯度以利地圖聯動高亮
+                                    newStreetPairs.push({ zh: nameZH, pt: namePT, lat: lat, lng: lng });
                                 }
                             }
                         }
@@ -725,11 +741,10 @@
             }
         }
 
-        // 🌟 已升級：在將路名推入陣列前，雙重檢查中/葡文是否已經存在（防重複）
+        // 防重複加入機制
         function saveNewStreetsToInventory(pairsArray) {
             let updated = false;
             pairsArray.forEach(pair => {
-                // 檢查是否完全包含該中文或葡文
                 const isDuplicate = unlockedStreets.some(s => s.zh === pair.zh || s.pt.toLowerCase() === pair.pt.toLowerCase());
                 
                 if(!isDuplicate) {
@@ -743,70 +758,125 @@
             }
         }
 
-        function getStrokeCount(streetName) {
-            if (!streetName || streetName.length === 0) return 999;
-            const firstChar = streetName.charAt(0);
-            if (strokeTable && strokeTable[firstChar] !== undefined) {
-                return strokeTable[firstChar];
+        // 取得單字筆劃
+        function getCharStroke(char) {
+            if (!char) return 0;
+            if (strokeTable && strokeTable[char] !== undefined) {
+                return strokeTable[char];
             }
-            if (strokeTable && strokeTable[streetName] !== undefined) {
-                return strokeTable[streetName];
-            }
-            return 999; 
+            return 999; // 查無資料時置底
         }
 
-        // 🌟 已升級：開啟足跡頁面（初始化搜尋框與計數）
+        // 🌟 新增（功能 1）：地圖聯動並高亮該道路
+        function focusAndHighlightStreet(lat, lng) {
+            if (!lat || !lng) {
+                alert("此路名記錄未包含位置坐標，無法定位！");
+                return;
+            }
+            
+            // 關閉足跡頁面
+            closeFootprintPage();
+            
+            // 移動地圖並放大聚焦
+            map.setView([lat, lng], 17, { animate: true, duration: 0.8 });
+            
+            // 移除舊的高亮（若存在）
+            if (highlightLayer) {
+                map.removeLayer(highlightLayer);
+            }
+            
+            // 建立黃金光圈高亮特效 (使用 L.circle)
+            highlightLayer = L.circle([lat, lng], {
+                radius: 40,
+                color: '#FFC107',
+                weight: 5,
+                fillColor: '#FFD700',
+                fillOpacity: 0.4,
+                className: 'animated-pulse-marker' // 綁定 CSS 作為擴散特效
+            }).addTo(map);
+            
+            // 3.5秒後自動淡出移除，避免殘留
+            setTimeout(() => {
+                if (highlightLayer && map.hasLayer(highlightLayer)) {
+                    map.removeLayer(highlightLayer);
+                    highlightLayer = null;
+                }
+            }, 3500);
+        }
+
+        // 開啟足跡頁面
         function openFootprintPage() {
             toggleMenuPanel(); 
-            document.getElementById('footprint-search').value = ""; // 打開時清空搜尋字串
+            document.getElementById('footprint-search').value = ""; 
             document.getElementById('footprint-modal').style.display = "flex"; 
-            renderFootprintList(); // 執行渲染
+            renderFootprintList(); 
         }
 
-        // 🌟 新增：切換升冪/降冪排序
+        // 切換升降冪排序
         function toggleStrokeSortOrder() {
             isSortAscending = !isSortAscending;
             const btn = document.getElementById('btn-sort-toggle');
             if (isSortAscending) {
-                btn.innerText = "筆劃排序：少→多";
+                btn.innerText = "⏫";
             } else {
-                btn.innerText = "筆劃排序：多→少";
+                btn.innerText = "⏬";
             }
-            renderFootprintList(); // 重新渲染列表
+            renderFootprintList(); 
         }
 
-        // 🌟 新增：手動刪除特定路名記錄的功能
+        // 手動刪除特定路名記錄
         function deleteStreetRecord(zhName, ptName) {
-            if (confirm(`❗ 確定要刪除「${zhName}」這條道路的解鎖記錄嗎？`)) {
-                // 從全域記憶體中過濾掉
+            if (confirm(`❗ 確定要刪除「${zhName}」這條道路的探索記錄嗎？`)) {
                 unlockedStreets = unlockedStreets.filter(s => !(s.zh === zhName && s.pt === ptName));
-                // 同步儲存至本地瀏覽器
                 localStorage.setItem('rpg_map_streets_inventory', JSON.stringify(unlockedStreets));
-                // 重新刷新當前渲染的清單
                 renderFootprintList();
             }
         }
 
-        // 🌟 新增與重構：核心渲染引擎（整合「搜尋」、「排序」與「刪除按鈕」）
+        // 🌟 已重構（功能 3）：多層級字典樹筆劃排序引擎（逐字深度比對）
+        function compareStreetsMultiLevel(streetA, streetB) {
+            const nameA = streetA.zh;
+            const nameB = streetB.zh;
+            
+            const minLength = Math.min(nameA.length, nameB.length);
+            
+            // 逐字比對筆劃
+            for (let i = 0; i < minLength; i++) {
+                const strokeA = getCharStroke(nameA.charAt(i));
+                const strokeB = getCharStroke(nameB.charAt(i));
+                
+                if (strokeA !== strokeB) {
+                    return isSortAscending ? (strokeA - strokeB) : (strokeB - strokeA);
+                }
+            }
+            
+            // 若前段全部相同，字數短的排在前面
+            if (nameA.length !== nameB.length) {
+                return isSortAscending ? (nameA.length - nameB.length) : (nameB.length - nameA.length);
+            }
+            
+            return 0; // 完全相同
+        }
+
+        // 核心足跡渲染引擎
         function renderFootprintList() {
             const listTarget = document.getElementById('street-list-target');
             const searchKeyword = document.getElementById('footprint-search').value.trim().toLowerCase();
             
-            listTarget.innerHTML = ""; // 清空
+            listTarget.innerHTML = ""; 
 
-            // 更新標題數量顯示
-            document.getElementById('modal-title-count').innerText = `👟 已探索的澳門道路 (${unlockedStreets.length})`;
+            document.getElementById('modal-title-count').innerText = ` 👟 已探索的澳門道路 (${unlockedStreets.length})`;
 
             if (unlockedStreets.length === 0) {
                 listTarget.innerHTML = `<div class="empty-tip">目前尚未探索任何道路，快連上GPS四處走走吧！</div>`;
                 return;
             }
 
-            // 1. 執行「搜尋過濾」
+            // 1. 搜尋過濾
             let filteredStreets = unlockedStreets.filter(street => {
                 const matchZh = street.zh.toLowerCase().includes(searchKeyword);
                 const matchPt = street.pt.toLowerCase().includes(searchKeyword);
-                return matchZh || matchPt; // 中文或葡文其中一個符合即可
+                return matchZh || matchPt; 
             });
 
             if (filteredStreets.length === 0) {
@@ -814,29 +884,20 @@
                 return;
             }
 
-            // 2. 執行「筆劃排序」
-            filteredStreets.sort((a, b) => {
-                const strokeA = getStrokeCount(a.zh);
-                const strokeB = getStrokeCount(b.zh);
-                
-                if (isSortAscending) {
-                    return strokeA - strokeB; // 小到大
-                } else {
-                    return strokeB - strokeA; // 大到小
-                }
-            });
+            // 2. 執行多層級筆劃排序
+            filteredStreets.sort(compareStreetsMultiLevel);
 
-            // 3. 生成 DOM 結構並綁定刪除事件
+            // 3. 生成 DOM 結構
             filteredStreets.forEach(street => {
-                const strokeNum = getStrokeCount(street.zh);
-                const strokeText = strokeNum === 999 ? "未分類" : `${strokeNum} 劃`;
+                const firstChar = street.zh.charAt(0);
+                const firstStrokeNum = getCharStroke(firstChar);
+                const strokeText = firstStrokeNum === 999 ? "未分類" : `${firstStrokeNum} 劃`;
 
                 const card = document.createElement('div');
                 card.className = "street-item-card";
                 
-                // 建立左半邊資訊欄與右半邊刪除鈕
                 card.innerHTML = `
-                    <div class="card-info-box">
+                    <div class="card-clickable-area" title="在地圖上顯示此道路">
                         <div class="card-zh">${street.zh}</div>
                         <div class="card-pt">${street.pt}</div>
                         <div class="card-stroke">首字筆劃：${strokeText}</div>
@@ -844,9 +905,19 @@
                     <button class="delete-street-btn" title="刪除此記錄">❌</button>
                 `;
 
-                // 綁定動態刪除按鈕的點擊監聽器
+                // 🌟 綁定點擊卡片本體觸發地圖高亮聯動（功能 1）
+                const clickArea = card.querySelector('.card-clickable-area');
+                clickArea.addEventListener('click', () => {
+                    // 若舊存檔無座標則防呆取用目前玩家位置
+                    const finalLat = street.lat || currentLat;
+                    const finalLng = street.lng || currentLng;
+                    focusAndHighlightStreet(finalLat, finalLng);
+                });
+
+                // 綁定刪除按鈕
                 const delBtn = card.querySelector('.delete-street-btn');
-                delBtn.addEventListener('click', () => {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 阻止事件冒泡防止觸發高亮
                     deleteStreetRecord(street.zh, street.pt);
                 });
 
@@ -936,7 +1007,7 @@
             }
             const saveData = {
                 gameIdentity: "Macau-Fog-Map-RPG",
-                version: "1.2.13",
+                version: "1.3.0",
                 downloadTimestamp: new Date().toISOString(),
                 lastLocation: [currentLat, currentLng],
                 exploredPaths: unlockedPaths,
@@ -1022,16 +1093,28 @@
             }
         }
 
+        // 🌟 已全面重構（功能 2）：控制模式切換（轉入 D-Pad 加密鎖防作弊機制）
         function toggleControlMode() {
             if (isReadOnlyMode) return;
-            isDpadMode = !isDpadMode;
+            
             const toggleBtn = document.getElementById('btn-toggle-mode');
             const dpadBox = document.getElementById('dpad-container');
 
-            if (isDpadMode) {
+            // 判斷目前的狀態：如果目前是 GPS 模式(isDpadMode為false)，代表玩家打算轉成 D-Pad
+            if (!isDpadMode) {
+                const passwordInput = prompt("🔑 請輸入管理員密碼以開啟 D-Pad 模擬測試模式：");
+                if (passwordInput !== "9876") {
+                    alert("❌ 密碼錯誤！無法切換至 D-Pad 模擬測試模式！");
+                    toggleMenuPanel();
+                    return; // 密碼錯誤直接阻斷
+                }
+                
+                // 密碼正確，執行切換為 D-Pad 模式
+                isDpadMode = true;
                 toggleBtn.innerText = "切換模式：🛰️GPS";
                 toggleBtn.className = "panel-btn btn-mode-dpad";
                 dpadBox.style.display = "grid"; 
+                
                 if (watchId !== null) {
                     navigator.geolocation.clearWatch(watchId);
                     watchId = null;
@@ -1041,6 +1124,8 @@
                 updateStatusUI(0);
                 handleUnlock(currentLat, currentLng);
             } else {
+                // 如果目前是 D-Pad，要切換回 GPS 不需要密碼
+                isDpadMode = false;
                 toggleBtn.innerText = "切換模式：🕹️D-Pad";
                 toggleBtn.className = "panel-btn btn-mode-gps";
                 dpadBox.style.display = "none"; 
