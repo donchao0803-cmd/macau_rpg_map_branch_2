@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG 澳門實境探索地圖 v1.3.3</title>
+    <title>RPG 澳門實境探索地圖 v1.3.4</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
@@ -58,27 +58,27 @@
         }
         
         .street-zh {
-    		font-size: 18px;
-    		font-weight: bold;
-    		color: #000000;
-    		display: -webkit-box;
-    		-webkit-box-orient: vertical;
-    		-webkit-line-clamp: 3; 
-    		overflow: hidden;
-		}
+            font-size: 18px;
+            font-weight: bold;
+            color: #000000;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4; 
+            overflow: hidden;
+        }
 
-		.street-pt {
-    		font-size: 13px;           
-    		font-weight: 500;
-    		color: #555555;            
-    		font-style: italic;
-    		line-height: 1.2;
-    		display: -webkit-box;
-    		-webkit-box-orient: vertical;
-    		-webkit-line-clamp: 3; 
-    		overflow: hidden;
+        .street-pt {
+            font-size: 13px;           
+            font-weight: 500;
+            color: #555555;            
+            font-style: italic;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4; 
+            overflow: hidden;
             white-space: pre-wrap;
-		}
+        }
 
         /* 📍 右側功能快捷按鈕欄 */
         .action-buttons-container {
@@ -214,7 +214,7 @@
         .btn-power-high { background: #e04379; }
         .btn-power-save { background: #009688; }
         .btn-danger { background: #ff4d4d; }
-        .btn-footprint { background: #FFC107; color: #111 !important; }
+        .btn-footprint { background: #FFC107; color: #111111 !important; }
 
         /* 🌟 底部常駐純資訊面板 */
         #bottom-info-bar {
@@ -278,14 +278,14 @@
             100% { transform: translateX(-50%) scale(1); }
         }
 
-        /* 🐾 已走過道路的彈出式滿版頁面 */
+        /* 🐾 已探索道路的彈出式滿版頁面 */
         #footprint-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 15, 15, 0.85);
+            background: rgba(15, 15, 15, 0.95);
             z-index: 2000;
             display: none; 
             flex-direction: column;
@@ -315,18 +315,20 @@
             cursor: pointer;
         }
         
-        /* 🔍 搜尋與工具欄 */
+        /* 🔍 v1.3.4 強化型工具與篩選欄 */
         .modal-toolbar {
             padding: 12px 20px;
             background: #111111;
             border-bottom: 2px solid #2d2d2d;
             display: flex;
+            flex-wrap: wrap;
             gap: 12px;
             align-items: center;
         }
         .search-input {
-            flex: 1;
-            padding: 10px 14px;
+            flex: 2;
+            min-width: 150px;
+            padding: 10px 10px;
             border-radius: 10px;
             border: 2px solid #444;
             background: #222;
@@ -337,6 +339,25 @@
         .search-input:focus {
             border-color: #FFC107;
         }
+
+        /* v1.3.4 分類篩選選單樣式 */
+        .filter-select {
+            flex: 1;
+            min-width: 170px;
+            padding: 10px 10px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            background: #222;
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+        .filter-select:focus {
+            border-color: #4CAF50;
+        }
+
         .sort-toggle-btn {
             background: #265dad;
             color: white;
@@ -344,10 +365,80 @@
             padding: 10px 10px;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             white-space: nowrap;
             user-select: none;
+        }
+
+        /* 📋 v1.3.4 排序選擇專用彈出框 (Dialog Overlay) */
+        #sort-dialog-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 2500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .sort-dialog-box {
+            background: #222;
+            border: 3px solid #265dad;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 290px;
+            padding: 20px;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-family: sans-serif;
+        }
+        .dialog-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFC107;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sort-option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .sort-opt-btn {
+            background: #333;
+            color: #fff;
+            border: 2px solid #555;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .sort-opt-btn:hover {
+            background: #444;
+            border-color: #FFC107;
+        }
+        .sort-opt-btn.active-opt {
+            background: #265dad;
+            border-color: #64B5F6;
+            font-weight: bold;
+        }
+        .dialog-close-btn {
+            background: #555;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s
+        }
+        .dialog-close-btn:hover {
+            background: #992c2c;
         }
 
         .modal-body {
@@ -373,7 +464,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             transition: background 0.2s;
         }
-        /* 讓卡片左側內容區塊可點擊 */
         .card-clickable-area {
             display: flex;
             flex-direction: column;
@@ -415,7 +505,6 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
-        /* ❌ 刪除按鈕樣式 */
         .delete-street-btn {
             background: transparent;
             border: 2px solid #ff4d4d;
@@ -443,13 +532,6 @@
             color: #888;
             margin-top: 40px;
             font-style: italic;
-        }
-
-        /* 🟡 高亮光圈動畫樣式 */
-        @keyframes pulseHighlight {
-            0 { transform: scale(0.5); opacity: 0.9; }
-            50 { transform: scale(1.2); opacity: 0.4; }
-            100 { transform: scale(0.5); opacity: 0.9; }
         }
     </style>
 </head>
@@ -509,17 +591,40 @@
         
         <div class="modal-toolbar">
             <input type="text" id="footprint-search" class="search-input" placeholder="🔍 輸入中文或葡文路名搜尋..." oninput="renderFootprintList()">
-            <button id="btn-sort-toggle" class="sort-toggle-btn" onclick="toggleStrokeSortOrder()">⏫</button>
+            
+            <select id="footprint-filter-type" class="filter-select" onchange="renderFootprintList()">
+                <option value="ALL">📋 道路種類</option>
+                <option value="AVENIDA">🔴大馬路 (Avenida)</option>
+                <option value="RUA">🟠街 (Rua)</option>
+                <option value="OTHER">🟡其他</option>
+                </select>
+
+            <button id="btn-sort-dialog-trigger" class="sort-toggle-btn" onclick="openSortDialog()">🗃️ 排序：🀄 中文筆劃⏫</button>
         </div>
 
         <div class="modal-body">
             <div id="street-list-target" class="street-list-container">
-                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sort-dialog-overlay" onclick="closeSortDialog()">
+        <div class="sort-dialog-box" onclick="event.stopPropagation()">
+            <div class="dialog-title">請選擇街道排序方式：</div>
+            <div class="sort-option-list">
+                <button id="opt-stroke-asc" class="sort-opt-btn" onclick="setSortEngine('stroke', true)">🀄 中文筆劃⏫</button>
+                <button id="opt-stroke-desc" class="sort-opt-btn" onclick="setSortEngine('stroke', false)">🀄 中文筆劃⏬</button>
+                <button id="opt-alpha-asc" class="sort-opt-btn" onclick="setSortEngine('alpha', true)">🔤 葡文字母⏫</button>
+                <button id="opt-alpha-desc" class="sort-opt-btn" onclick="setSortEngine('alpha', false)">🔤 葡文字母⏬</button>
+                <button id="opt-time-desc" class="sort-opt-btn" onclick="setSortEngine('time', false)">📅 探索時間⏩</button>
+                <button id="opt-time-asc" class="sort-opt-btn" onclick="setSortEngine('time', true)">📅 探索時間⏪</button>
+            </div>
+            <button class="dialog-close-btn" onclick="closeSortDialog()">取消</button>
         </div>
     </div>
 
     <div id="bottom-info-bar">
-        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.3.3) 📸</div>
+        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.3.4) 📸</div>
         <div class="info-coords" id="gps-status">定位中...</div>
     </div>
 
@@ -551,9 +656,12 @@
         let strokeTable = {}; 
         let map;
         let canvas, ctx, tempCanvas, tempCtx;
-        let isSortAscending = true; 
 
-        // 🌟 新增：取得格式化時間字串 (YYYY/MM/DD, HH:MM 不含秒)
+        // v1.3.4 全域排序設定狀態
+        let currentSortType = 'stroke'; // 'stroke' | 'alpha' | 'time'
+        let currentSortAscending = true; 
+
+        // 取得格式化時間字串
         function getFormattedCurrentTime() {
             const now = new Date();
             const year = now.getFullYear();
@@ -561,7 +669,7 @@
             const day = String(now.getDate()).padStart(2, '0');
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${year}/${month}/${day}, ${hours}:${minutes}`;
+            return `${year}/${month}/${day} ${hours}:${minutes}`;
         }
 
         async function loadStrokeData() {
@@ -708,7 +816,7 @@
             drawFog();
         }
 
-		async function updateStreetOverpass(lat, lng) {
+        async function updateStreetOverpass(lat, lng) {
             const currentTime = Date.now();
             if (currentTime - lastApiRequestTime < 4000) return; 
             lastApiRequestTime = currentTime;
@@ -788,24 +896,24 @@
             }
         }
 
-        // 防重複加入機制（若首次解鎖，則加上時間戳記；若重複經過則被過濾、不作更新）
         function saveNewStreetsToInventory(pairsArray) {
             let updated = false;
-            const timestamp = getFormattedCurrentTime(); // 獲取當前時間
+            const currentFormattedTime = getFormattedCurrentTime();
 
             pairsArray.forEach(pair => {
                 const isDuplicate = unlockedStreets.some(s => s.zh === pair.zh || s.pt.toLowerCase() === pair.pt.toLowerCase());
                 
                 if(!isDuplicate) {
-                    // 🌟 v1.3.1 更新：確定為首次探索時，寫入當前日期與時間
-                    pair.unlockedAt = timestamp;
+                    // 寫入解鎖時間與 rawTime 戳記以供 v1.3.4 精準排序
+                    pair.unlockedAt = currentFormattedTime;
+                    pair.rawTime = Date.now();
                     unlockedStreets.push(pair);
                     updated = true;
                 }
             });
             if(updated) {
                 localStorage.setItem('rpg_map_streets_inventory', JSON.stringify(unlockedStreets));
-                console.log("👟 圖鑑更新！累計解鎖街道：", unlockedStreets.length);
+                console.log("👟 圖鑑更新！排除重複後累計：", unlockedStreets.length);
             }
         }
 
@@ -824,7 +932,7 @@
             }
             
             closeFootprintPage();
-            map.setView([lat, lng], 18, { animate: true, duration: 0.8 });
+            map.setView([lat, lng], 17, { animate: true, duration: 0.8 });
             
             if (highlightLayer) {
                 map.removeLayer(highlightLayer);
@@ -835,8 +943,7 @@
                 color: '#FFC107',
                 weight: 5,
                 fillColor: '#FFD700',
-                fillOpacity: 0.4,
-                className: 'animated-pulse-marker' 
+                fillOpacity: 0.4
             }).addTo(map);
             
             setTimeout(() => {
@@ -844,40 +951,77 @@
                     map.removeLayer(highlightLayer);
                     highlightLayer = null;
                 }
-            }, 3500);
+            }, 3000);
         }
 
         function openFootprintPage() {
             toggleMenuPanel(); 
             document.getElementById('footprint-search').value = ""; 
+            document.getElementById('footprint-filter-type').value = "ALL";
             document.getElementById('footprint-modal').style.display = "flex"; 
             renderFootprintList(); 
         }
 
-        function toggleStrokeSortOrder() {
-            isSortAscending = !isSortAscending;
-            const btn = document.getElementById('btn-sort-toggle');
-            if (isSortAscending) {
-                btn.innerText = "⏫";
-            } else {
-                btn.innerText = "⏬";
-            }
-            renderFootprintList(); 
+        /* 📋 v1.3.4 彈出式排序對話框控制邏輯 */
+        function openSortDialog() {
+            document.getElementById('sort-dialog-overlay').style.display = "flex";
+            const buttons = document.querySelectorAll('.sort-opt-btn');
+            buttons.forEach(b => b.classList.remove('active-opt'));
+            
+            let targetId = "opt-stroke-asc";
+            if (currentSortType === 'stroke') targetId = currentSortAscending ? "opt-stroke-asc" : "opt-stroke-desc";
+            else if (currentSortType === 'alpha') targetId = currentSortAscending ? "opt-alpha-asc" : "opt-alpha-desc";
+            else if (currentSortType === 'time') targetId = currentSortAscending ? "opt-time-asc" : "opt-time-desc";
+            
+            const activeBtn = document.getElementById(targetId);
+            if(activeBtn) activeBtn.classList.add('active-opt');
         }
 
-        // 手動刪除特定路名記錄（日期與時間會一同從 localStorage 與陣列中同步被刪除）
+        function closeSortDialog() {
+            document.getElementById('sort-dialog-overlay').style.display = "none";
+        }
+
+        function setSortEngine(type, ascending) {
+            currentSortType = type;
+            currentSortAscending = ascending;
+            
+            const triggerBtn = document.getElementById('btn-sort-dialog-trigger');
+            let labelText = "🗃️ 排序：";
+            if (type === 'stroke') labelText += ascending ? "🀄 中文筆劃⏫" : "🀄 中文筆劃⏬";
+            else if (type === 'alpha') labelText += ascending ? "🔤 葡文字母⏫" : "🔤 葡文字母⏬";
+            else if (type === 'time') labelText += ascending ? "📅 探索時間⏩" : "📅 探索時間⏪";
+            
+            triggerBtn.innerText = labelText;
+            closeSortDialog();
+            renderFootprintList();
+        }
+
         function deleteStreetRecord(zhName, ptName) {
-            if (confirm(`❗ 確定要刪除「${zhName}」這條道路的解鎖記錄嗎？\n(刪除後連同探索日期也會一併清空)`)) {
+            if (confirm(`❗ 確定要刪除「${zhName}」這條道路的探索記錄嗎？`)) {
                 unlockedStreets = unlockedStreets.filter(s => !(s.zh === zhName && s.pt === ptName));
                 localStorage.setItem('rpg_map_streets_inventory', JSON.stringify(unlockedStreets));
                 renderFootprintList();
             }
         }
 
-        function compareStreetsMultiLevel(streetA, streetB) {
+        /* ⚖️ v1.3.4 全方位複雜核心排序計算機 */
+        function compareStreetsMultiEngine(streetA, streetB) {
+            // 模式一：依據時間排序
+            if (currentSortType === 'time') {
+                const timeA = streetA.rawTime || 0;
+                const timeB = streetB.rawTime || 0;
+                return currentSortAscending ? (timeA - timeB) : (timeB - timeA);
+            }
+            
+            // 模式二：依據葡文字母排序
+            if (currentSortType === 'alpha') {
+                const res = streetA.pt.localeCompare(streetB.pt, 'en', { sensitivity: 'base' });
+                return currentSortAscending ? res : -res;
+            }
+
+            // 模式三：深度逐字中文筆劃比對 (預設)
             const nameA = streetA.zh;
             const nameB = streetB.zh;
-            
             const minLength = Math.min(nameA.length, nameB.length);
             
             for (let i = 0; i < minLength; i++) {
@@ -885,49 +1029,74 @@
                 const strokeB = getCharStroke(nameB.charAt(i));
                 
                 if (strokeA !== strokeB) {
-                    return isSortAscending ? (strokeA - strokeB) : (strokeB - strokeA);
+                    return currentSortAscending ? (strokeA - strokeB) : (strokeB - strokeA);
                 }
             }
             
             if (nameA.length !== nameB.length) {
-                return isSortAscending ? (nameA.length - nameB.length) : (nameB.length - nameA.length);
+                return currentSortAscending ? (nameA.length - nameB.length) : (nameB.length - nameA.length);
             }
-            
             return 0; 
         }
 
-        // 核心足跡渲染引擎
+        /* 🔍 v1.3.4 強化版足跡列表渲染與雙層過濾引擎 */
         function renderFootprintList() {
             const listTarget = document.getElementById('street-list-target');
             const searchKeyword = document.getElementById('footprint-search').value.trim().toLowerCase();
+            const filterType = document.getElementById('footprint-filter-type').value;
             
             listTarget.innerHTML = ""; 
-
             document.getElementById('modal-title-count').innerText = ` 👟 已探索的澳門道路 (${unlockedStreets.length})`;
 
             if (unlockedStreets.length === 0) {
-                listTarget.innerHTML = `<div class="empty-tip">目前尚未探索任何街道，快連上GPS四處走走吧！</div>`;
+                listTarget.innerHTML = `<div class="empty-tip">目前尚未探索任何道路，快連上GPS四處走走吧！</div>`;
                 return;
             }
 
+            // 第一層：關鍵字搜尋過濾
             let filteredStreets = unlockedStreets.filter(street => {
                 const matchZh = street.zh.toLowerCase().includes(searchKeyword);
                 const matchPt = street.pt.toLowerCase().includes(searchKeyword);
                 return matchZh || matchPt; 
             });
 
+            // 第二層：後綴類型過濾 (大馬路 / 街 / 其他)
+            filteredStreets = filteredStreets.filter(street => {
+                if (filterType === "ALL") return true;
+                
+                const zhName = street.zh;
+                const ptName = street.pt.toLowerCase();
+
+                if (filterType === "AVENIDA") {
+                    return zhName.endsWith("大馬路") || ptName.startsWith("avenida");
+                }
+                
+                if (filterType === "RUA") {
+                    return zhName.endsWith("街") || ptName.startsWith("rua");
+                }
+                
+                if (filterType === "OTHER") {
+                    const isAvenida = zhName.endsWith("大馬路") || ptName.startsWith("avenida");
+                    const isRua = zhName.endsWith("街") || ptName.startsWith("rua");
+                    return !isAvenida && !isRua;
+                }
+
+                return true;
+            });
+
             if (filteredStreets.length === 0) {
-                listTarget.innerHTML = `<div class="empty-tip">找不到符合「${searchKeyword}」的道路結果</div>`;
+                listTarget.innerHTML = `<div class="empty-tip">找不到符合過濾與搜尋條件的道路結果。</div>`;
                 return;
             }
 
-            filteredStreets.sort(compareStreetsMultiLevel);
+            // 執行多維度排序
+            filteredStreets.sort(compareStreetsMultiEngine);
 
+            // 渲染 DOM 卡片
             filteredStreets.forEach(street => {
                 const firstChar = street.zh.charAt(0);
                 const firstStrokeNum = getCharStroke(firstChar);
                 const strokeText = firstStrokeNum === 999 ? "未分類" : `${firstStrokeNum} 劃`;
-                // 🌟 v1.3.1 新增：防呆讀取舊存檔可能無日期的情況
                 const timeText = street.unlockedAt ? street.unlockedAt : "未知時間";
 
                 const card = document.createElement('div');
@@ -1036,6 +1205,7 @@
             window.location.href = window.location.origin + window.location.pathname;
         }
 
+        // v1.3.4 下載架構聲明
         function downloadSaveFile() {
             if (isReadOnlyMode) return;
             if (unlockedPaths.length === 0) {
@@ -1044,7 +1214,7 @@
             }
             const saveData = {
                 gameIdentity: "Macau-Fog-Map-RPG",
-                version: "1.3.3",
+                version: "1.3.4",
                 downloadTimestamp: new Date().toISOString(),
                 lastLocation: [currentLat, currentLng],
                 exploredPaths: unlockedPaths,
@@ -1137,9 +1307,9 @@
             const dpadBox = document.getElementById('dpad-container');
 
             if (!isDpadMode) {
-                const passwordInput = prompt("🔑 請輸入管理員密碼以開啟 D-Pad 測試模擬模式：");
+                const passwordInput = prompt("🔑 請輸入管理員密碼以開啟 D-Pad 模擬測試模式：");
                 if (passwordInput !== "9876") {
-                    alert("❌ 密碼錯誤！無法切換至 D-Pad 測試模擬模式。");
+                    alert("❌ 密碼錯誤！無法切換至 D-Pad 模擬測試模式！");
                     toggleMenuPanel();
                     return; 
                 }
@@ -1264,7 +1434,7 @@
 
         function resetGame() {
             if (isReadOnlyMode) return;
-            if (confirm("🚨 警告！這將會清除所有的數據，包括已走過的路名記錄及探索日期，確定嗎？")) {
+            if (confirm("🚨 警告！這將會清除所有的數據，包括已走過的路名圖鑑與探索日期，確定嗎？")) {
                 localStorage.removeItem('rpg_map_progress_v12');
                 localStorage.removeItem('rpg_map_streets_inventory');
                 localStorage.removeItem('rpg_map_last_latlng');
