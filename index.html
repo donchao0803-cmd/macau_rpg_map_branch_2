@@ -731,8 +731,8 @@
                             let namePT = element.tags['name:pt'] || element.tags['official_name:pt'] || element.tags['official_name'];
 
                             // ⚡ v1.3.2 Bug修復核心：防呆清洗 OSM 之中葡文混雜資料
-                            if (nameZH && (nameZH.includes('/') || nameZH.includes(' - '))) {
-                                const separator = nameZH.includes('/') ? '/' : ' - ';
+                            if (nameZH && (nameZH.includes('/') || nameZH.includes(' '))) {
+                                const separator = nameZH.includes('/') ? '/' : ' ';
                                 const parts = nameZH.split(separator);
                                 let partA = parts[0].trim();
                                 let partB = parts[1].trim();
