@@ -590,9 +590,9 @@
         </div>
         
         <div class="modal-toolbar">
-            <input type="text" id="footprint-search" class="search-input" placeholder="🔍 輸入中文或葡文路名搜尋..." oninput="renderFootprintList()">
+            <input type="text" id="footprint-search" class="search-input" placeholder="🔍 輸入中文或葡文路名搜尋..." oninput="renderFootprintList()"> 
             
-            <select id="footprint-filter-type" class="filter-select" onchange="renderFootprintList()">
+            <select id="footprint-filter-type" class="filter-select" onchange="renderFootprintList()"> 
                 <option value="ALL">📋所有道路種類</option>
                 <option value="AVENIDA">🔴大馬路 (Avenida)</option>
                 <option value="ESTRADA">🟠馬路/公路 (Estrada)</option>
@@ -608,11 +608,11 @@
                 <option value="ROTUNDA">🟤圓形地(迴旋處) (Rotunda)</option>
                 <option value="LARGO">⚫前地/廣場/花園/口 (Largo/Praça/Praceta/Alameda)</option>
                 <option value="MIRADOURO">⚪眺望台 (Miradouro)</option>
-                <option value="OTHER">ℹ️其他(坊/間/土腰...)</option> // 其它種類：舊社/通津/長城/土腰/空地/公地/地/碼頭/劏狗環/口/市/坊/居/村/尾/行/塘/間/樓
+                <option value="OTHER">ℹ️其他 (坊/間/土腰...)</option> // 其它種類：舊社/通津/長城/土腰/空地/公地/地/碼頭/劏狗環/口/市/坊/居/村/尾/行/塘/間/樓
                 </select>
 
-            <button id="btn-sort-dialog-trigger" class="sort-toggle-btn" onclick="openSortDialog()">🗃️ 排序：🀄 中文筆劃⏫</button>
-        </div>
+            <button id="btn-sort-dialog-trigger" class="sort-toggle-btn" onclick="openSortDialog()">🗃️ 排序：🀄 中文筆劃⏫</button>  
+        </div> 
 
         <div class="modal-body">
             <div id="street-list-target" class="street-list-container">
@@ -636,16 +636,16 @@
     </div>
 
     <div id="bottom-info-bar">
-        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.3.4) 📸</div>
+        <div class="info-title" id="bar-title">🗺️ 澳門探索地圖 (v1.3.4) 📸</div> 
         <div class="info-coords" id="gps-status">定位中...</div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-geometryutil@0.10.3/src/leaflet.geometryutil.js"></script>
+    <script src="https://unpkg.com/leaflet-geometryutil@0.10.3/src/leaflet.geometryutil.js"></script> 
     
     <script>
         // 全域變數定義
-        const macauBounds = L.latLngBounds(
+        const macauBounds = L.latLngBounds( 
             L.latLng(22.0900, 113.5100), 
             L.latLng(22.2300, 113.6100)  
         );
