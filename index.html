@@ -354,6 +354,9 @@
             outline: none;
             cursor: pointer;
         }
+        .filter-select:focus {
+            border-color: #4CAF50;
+        }
 
         .sort-toggle-btn {
             background: #265dad;
@@ -592,8 +595,20 @@
             <select id="footprint-filter-type" class="filter-select" onchange="renderFootprintList()">
                 <option value="ALL">📋所有道路種類</option>
                 <option value="AVENIDA">🔴大馬路 (Avenida)</option>
-                <option value="RUA">🟠街 (Rua)</option>
-                <option value="OTHER">🟡其他</option>
+                <option value="ESTRADA">🟠馬路/公路 (Estrada)</option>
+                <option value="CAMINHO">🔶路 (Caminho)</option>
+                <option value="RAMPA">🟧斜路/斜坡 (Rampa)</option>
+                <option value="RUA">🟡街 (Rua)</option>
+                <option value="TRAVESSA">🟢巷 (Travessa)</option>
+                <option value="CALCADA">🟩斜巷 (Calçada)</option>
+                <option value="BECO">🔵里(*) (Beco)</option>
+                <option value="PATIO">🔷圍(*) (Pátio)</option>
+                <option value="PATIO2">🟦台 (Pátio)</option>
+                <option value="ESCADA">🟣石級 (Escada/Escadaria)</option>
+                <option value="ROTUNDA">🟤圓形地(迴旋處) (Rotunda)</option>
+                <option value="LARGO">⚫前地/廣場/花園/口 (Largo/Praça/Praceta/Alameda)</option>
+                <option value="MIRADOURO">⚪眺望台 (Miradouro)</option>
+                <option value="OTHER">ℹ️其他</option>
                 </select>
 
             <button id="btn-sort-dialog-trigger" class="sort-toggle-btn" onclick="openSortDialog()">🗃️ 排序：🀄 中文筆劃⏫</button>
@@ -986,7 +1001,7 @@
             let labelText = "🗃️ 排序：";
             if (type === 'stroke') labelText += ascending ? "🀄 中文筆劃⏫" : "🀄 中文筆劃⏬";
             else if (type === 'alpha') labelText += ascending ? "🔤 葡文字母⏫" : "🔤 葡文字母⏬";
-            else if (type === 'time') labelText += ascending ? "📅 探索時間⏪" : "📅 探索時間⏩";
+            else if (type === 'time') labelText += ascending ? "📅 探索時間⏩" : "📅 探索時間⏪";
             
             triggerBtn.innerText = labelText;
             closeSortDialog();
@@ -1067,15 +1082,75 @@
                 if (filterType === "AVENIDA") {
                     return zhName.endsWith("大馬路") || ptName.startsWith("avenida");
                 }
+                               
+                if (filterType === "ESTRADA") {
+                    return zhName.endsWith("馬路") || zhName.endsWith("公路") || ptName.startsWith("estrada");
+                }
+                
+                if (filterType === "CAMINHO") {
+                    return ptName.startsWith("caminho");
+                }
+
+                if (filterType === "RAMPA") {
+                    return zhName.endsWith("斜路") || zhName.endsWith("斜坡") || ptName.startsWith("rampa");
+                }
                 
                 if (filterType === "RUA") {
                     return zhName.endsWith("街") || ptName.startsWith("rua");
                 }
                 
+                if (filterType === "TRAVESSA") {
+                    return zhName.endsWith("巷") || ptName.startsWith("travessa");
+                }
+                
+                if (filterType === "CALCADA") {
+                    return zhName.endsWith("斜巷") || ptName.startsWith("calçada");
+                }
+                
+                if (filterType === "BECO") {
+                    return zhName.endsWith("里") || ptName.startsWith("beco");
+                }
+                
+                if (filterType === "PATIO") {
+                    return zhName.endsWith("圍") || ptName.startsWith("pátio");
+                }
+                
+                if (filterType === "PATIO2") {
+                    return zhName.endsWith("台");
+                }
+                
+                if (filterType === "ESCADA") {
+                    return zhName.endsWith("石級") || ptName.startsWith("escada") || ptName.startsWith("escadaria");
+                }
+                
+                if (filterType === "ROTUNDA") {
+                    return zhName.endsWith("圓形地") || ptName.startsWith("rotunda");
+                }
+                
+                if (filterType === "LARGO") {
+                    return zhName.endsWith("前地") || zhName.endsWith("廣場") || zhName.endsWith("花園") || ptName.startsWith("largo") || ptName.startsWith("praça") || ptName.startsWith("praceta") || ptName.startsWith("alameda");
+                }
+                
+                if (filterType === "MIRADOURO") {
+                    return zhName.endsWith("眺望台") || ptName.startsWith("miradouro");
+                }
+                
                 if (filterType === "OTHER") {
                     const isAvenida = zhName.endsWith("大馬路") || ptName.startsWith("avenida");
-                    const isRua = zhName.endsWith("街") || ptName.startsWith("rua");
-                    return !isAvenida && !isRua;
+                    const isEstrada = zhName.endsWith("馬路") || zhName.endsWith("公路") || ptName.startsWith("estrada");
+                    const isCaminho = ptName.startsWith("caminho")
+                    const isRampa = zhName.endsWith("斜路") || zhName.endsWith("斜坡") || ptName.startsWith("rampa")
+                    const isRua = zhName.endsWith("街") || ptName.startsWith("rua")
+                    const isTravessa = zhName.endsWith("巷") || ptName.startsWith("travessa")
+                    const isCalcada = zhName.endsWith("斜巷") || ptName.startsWith("calçada")
+                    const isBeco = zhName.endsWith("里") || ptName.startsWith("beco")
+                    const isPatio = zhName.endsWith("圍") || ptName.startsWith("pátio")
+                    const isPatio2 = zhName.endsWith("台")
+                    const isEscada = zhName.endsWith("石級") || ptName.startsWith("escada") || ptName.startsWith("escadaria")
+                    const isRotunda = zhName.endsWith("圓形地") || ptName.startsWith("rotunda")
+                    const isLargo = zhName.endsWith("前地") || zhName.endsWith("廣場") || zhName.endsWith("花園") || ptName.startsWith("largo") || ptName.startsWith("praça") || ptName.startsWith("praceta") || ptName.startsWith("alameda")
+                    const isMiradouro = zhName.endsWith("眺望台") || ptName.startsWith("miradouro")
+                    return !isAvenida && !isEstrada && !isCaminho && !isRampa && !isRua && !isTravessa && !isCalcada && !isBeco && !isPatio && !isPatio2 && !isEscada && !isRotunda && !isLargo && !isMiradouro;
                 }
 
                 return true;
