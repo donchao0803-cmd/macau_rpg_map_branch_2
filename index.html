@@ -594,7 +594,7 @@
             
             <select id="footprint-filter-type" class="filter-select" onchange="renderFootprintList()"> 
                 <option value="ALL">📋所有道路種類</option>
-                <option value="AVENIDA">🔴大馬路 (Avenida)</option>
+                <option value="AVENIDA">🔴大馬路/道 (Avenida)</option>
                 <option value="ESTRADA">🟠馬路/公路 (Estrada)</option>
                 <option value="CAMINHO">🔶路 (Caminho)</option>
                 <option value="RAMPA">🟧斜路/斜坡 (Rampa)</option>
@@ -608,6 +608,10 @@
                 <option value="ROTUNDA">🟤圓形地(迴旋處) (Rotunda)</option>
                 <option value="LARGO">⚫前地/廣場/花園/口 (Largo/Praça/Praceta/Alameda)</option>
                 <option value="MIRADOURO">⚪眺望台 (Miradouro)</option>
+                <option value="VIADUTO">↕️天橋 (Viaduto)</option>
+                <option value="TUNEL">↔️隧道 (Túnel)</option>
+                <option value="PONTE">🔄️大橋 (Ponte)</option>
+                <option value="TRILHO">🔀徑 (Trilho/Circuito/Pista)</option>
                 <option value="OTHER">ℹ️其他 (坊/間/土腰...)</option> // 其它種類：舊社/通津/長城/土腰/空地/公地/地/碼頭/劏狗環/口/市/坊/居/村/尾/行/塘/間/樓
                 </select>
 
@@ -1134,6 +1138,19 @@
                 if (filterType === "MIRADOURO") {
                     return zhName.endsWith("眺望台") || ptName.startsWith("miradouro");
                 }
+
+                if (filterType === "VIADUTO") {
+                    return zhName.endsWith("天橋") || ptName.startsWith("viaduto");
+                }
+                 if (filterType === "TUNEL") {
+                    return zhName.endsWith("隧道") || ptName.startsWith("túnel") || ptName.startsWith("tunel");
+                }
+                 if (filterType === "PONTE") {
+                    return zhName.endsWith("大橋") || ptName.startsWith("ponte");
+                }
+                 if (filterType === "TRILHO") {
+                    return zhName.endsWith("徑") || ptName.startsWith("trilho") || ptName.startsWith("trilhos") || ptName.startsWith("trilha") || ptName.startsWith("circuito") || ptName.startsWith("pista");
+                }
                 
                 if (filterType === "OTHER") {
                     const isAvenida = zhName.endsWith("大馬路") || ptName.startsWith("avenida");
@@ -1150,7 +1167,11 @@
                     const isRotunda = zhName.endsWith("圓形地") || ptName.startsWith("rotunda")
                     const isLargo = zhName.endsWith("前地") || zhName.endsWith("廣場") || zhName.endsWith("花園") || ptName.startsWith("largo") || ptName.startsWith("praça") || ptName.startsWith("praceta") || ptName.startsWith("alameda")
                     const isMiradouro = zhName.endsWith("眺望台") || ptName.startsWith("miradouro")
-                    return !isAvenida && !isEstrada && !isCaminho && !isRampa && !isRua && !isTravessa && !isCalcada && !isBeco && !isPatio && !isPatio2 && !isEscada && !isRotunda && !isLargo && !isMiradouro;
+                    const isViaduto = zhName.endsWith("天橋") || ptName.startsWith("viaduto")
+                    const isTunel = zhName.endsWith("隧道") || ptName.startsWith("túnel") || ptName.startsWith("tunel")
+                    const isPonte = zhName.endsWith("大橋") || ptName.startsWith("ponte")
+                    const isTrilho = zhName.endsWith("徑") || ptName.startsWith("trilho") || ptName.startsWith("trilhos") || ptName.startsWith("trilha") || ptName.startsWith("circuito") || ptName.startsWith("pista")
+                    return !isAvenida && !isEstrada && !isCaminho && !isRampa && !isRua && !isTravessa && !isCalcada && !isBeco && !isPatio && !isPatio2 && !isEscada && !isRotunda && !isLargo && !isMiradouro && !isViaduto && !isTunel && !isPonte && !isTrilho;
                 }
 
                 return true;
